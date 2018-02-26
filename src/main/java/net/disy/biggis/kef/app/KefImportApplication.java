@@ -15,11 +15,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 @ComponentScan("net.disy.biggis.kef")
 public class KefImportApplication implements CommandLineRunner {
 
@@ -58,7 +59,7 @@ public class KefImportApplication implements CommandLineRunner {
   @Autowired
   @Qualifier("importChartsEiablageFunde")
   private Job importChartsEiablageFunde;
-  
+
   @Autowired
   @Qualifier("importMapFallenfaenge")
   private Job importMapFallenfaenge;
@@ -89,13 +90,13 @@ public class KefImportApplication implements CommandLineRunner {
     }
 
     if (isEiImportEnabled) {
-        JobExecution execution = executeEiablageFundeImportJob();
-        while (execution.isRunning()) {
-          Thread.sleep(100);
-        }
+      JobExecution execution = executeEiablageFundeImportJob();
+      while (execution.isRunning()) {
+        Thread.sleep(100);
       }
+    }
 
-    
+
     if (isMapImportEnabled) {
       JobExecution execution = executeMapFallenfaengeImportJob();
       while (execution.isRunning()) {
@@ -127,10 +128,10 @@ public class KefImportApplication implements CommandLineRunner {
   }
 
   private JobExecution executeEiablageFundeImportJob() throws JobExecutionException {
-	    return jobLauncher.run(importChartsEiablageFunde, createUniqueChartParameters());
-	  }
+    return jobLauncher.run(importChartsEiablageFunde, createUniqueChartParameters());
+  }
 
-  
+
   private JobExecution executeMapFallenfaengeImportJob() throws JobExecutionException {
     return jobLauncher.run(importMapFallenfaenge, createUniqueMapParameters());
   }
@@ -145,8 +146,8 @@ public class KefImportApplication implements CommandLineRunner {
 
   private JobParameters createUniqueChartParameters() {
     return createYearParametrizedJobBuilder().addLong("startId", Long.valueOf(startId)) //$NON-NLS-1$
-        .addLong("endId", Long.valueOf(endId)) //$NON-NLS-1$
-        .toJobParameters();
+            .addLong("endId", Long.valueOf(endId)) //$NON-NLS-1$
+            .toJobParameters();
   }
 
   private JobParameters createUniqueMapParameters() {
@@ -155,8 +156,8 @@ public class KefImportApplication implements CommandLineRunner {
 
   private JobParametersBuilder createYearParametrizedJobBuilder() {
     return new JobParametersBuilder().addDate("timestamp", Date.from(Instant.now())) //$NON-NLS-1$
-        .addLong("startYear", Long.valueOf(startYear)) //$NON-NLS-1$
-        .addLong("endYear", Long.valueOf(endYear)); //$NON-NLS-1$
+            .addLong("startYear", Long.valueOf(startYear)) //$NON-NLS-1$
+            .addLong("endYear", Long.valueOf(endYear)); //$NON-NLS-1$
   }
 
   public static void main(String[] args) throws Exception {
