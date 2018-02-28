@@ -24,10 +24,10 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan("net.disy.biggis.kef")
 public class KefImportApplication implements CommandLineRunner {
 
-  @Value("${startYear}")
+  //@Value("${startYear}")
   private int startYear;
 
-  @Value("${endYear}")
+  //@Value("${endYear}")
   private int endYear;
 
   @Value("${startId}")
@@ -35,15 +35,6 @@ public class KefImportApplication implements CommandLineRunner {
 
   @Value("${endId}")
   private int endId;
-
-  @Value("${ffImportEnabled}")
-  private boolean isFfImportEnabled;
-
-  @Value("${eiImportEnabled}")
-  private boolean isEiImportEnabled;
-
-  @Value("${mapImportEnabled}")
-  private boolean isMapImportEnabled;
 
   @Autowired
   private JobLauncher jobLauncher;
@@ -75,12 +66,16 @@ public class KefImportApplication implements CommandLineRunner {
   @Override
   public void run(String... args) throws JobExecutionException, InterruptedException {
 
+    Boolean isFfImportEnabled = Boolean.parseBoolean(System.getenv("FF_IMPORT_ENABLED"));
+
     if (isFfImportEnabled) {
       JobExecution execution = executeFallenfaengeImportJob();
       while (execution.isRunning()) {
         Thread.sleep(100);
       }
     }
+
+    Boolean isEiImportEnabled = Boolean.parseBoolean(System.getenv("EI_IMPORT_ENABLED"));
 
     if (isEiImportEnabled) {
       JobExecution execution = executeEiablageBeerenImportJob();
@@ -96,6 +91,7 @@ public class KefImportApplication implements CommandLineRunner {
       }
     }
 
+    Boolean isMapImportEnabled = Boolean.parseBoolean(System.getenv("MAP_IMPORT_ENABLED"));
 
     if (isMapImportEnabled) {
       JobExecution execution = executeMapFallenfaengeImportJob();
@@ -155,6 +151,13 @@ public class KefImportApplication implements CommandLineRunner {
   }
 
   private JobParametersBuilder createYearParametrizedJobBuilder() {
+
+    String startYearEnv = System.getenv("START_YEAR");
+    String endYearEnv = System.getenv("END_YEAR");
+
+    if (startYearEnv != null && !startYearEnv.isEmpty()) startYear = Integer.parseInt(startYearEnv);
+    if (endYearEnv != null && !endYearEnv.isEmpty()) endYear = Integer.parseInt(endYearEnv);
+
     return new JobParametersBuilder().addDate("timestamp", Date.from(Instant.now())) //$NON-NLS-1$
             .addLong("startYear", Long.valueOf(startYear)) //$NON-NLS-1$
             .addLong("endYear", Long.valueOf(endYear)); //$NON-NLS-1$
