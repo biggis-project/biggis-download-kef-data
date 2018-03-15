@@ -2,7 +2,7 @@ version: '2'
 services:
 
   vitimeo-downloader:
-    image: registry.biggis.project.de/demo/vitimeo-downloader
+    image: registry.biggis.project.de/demo/vitimeteo-downloader
     environment:
       START_YEAR: 2010
       END_YEAR: 2018
